@@ -1,0 +1,27 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  schedule:
+    - cron: '0 6 * * *'
+
+jobs:
+  bats:
+    name: Test on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+      - name: Install cast-agents
+        run: CI=true CAST_SKIP_EXAMPLES=1 bash install.sh
+      - name: Verify version
+        run: cast-agents --version
+      - name: Run BATS suite
+        run: tests/bats/bin/bats tests/install.bats tests/cli.bats tests/agents.bats --tap

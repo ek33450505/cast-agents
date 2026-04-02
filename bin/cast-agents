@@ -1,0 +1,226 @@
+#!/usr/bin/env bash
+# cast-agents — 17 specialist Claude Code agent definitions
+#
+# Usage: cast-agents <subcommand> [args]
+#
+# Subcommands: list, install, info, --version
+
+set -uo pipefail
+
+# ── Script directory (resolve symlinks) ──────────────────────────────────────
+CA_BIN_DIR="$(cd "$(dirname "$(readlink -f "${BASH_SOURCE[0]}" 2>/dev/null || echo "${BASH_SOURCE[0]}")")" && pwd)"
+CA_REPO_DIR="$(cd "$CA_BIN_DIR/.." && pwd)"
+
+# ── Agents directory — replaced by Homebrew formula at install time ───────────
+CAST_AGENTS_DIR=""
+
+# ── Version ──────────────────────────────────────────────────────────────────
+if [ -n "${CAST_AGENTS_DIR:-}" ]; then
+  CA_VERSION="$(cat "${CAST_AGENTS_DIR}/VERSION" 2>/dev/null || echo "unknown")"
+else
+  CA_VERSION="$(cat "${CA_REPO_DIR}/VERSION" 2>/dev/null || echo "unknown")"
+fi
+
+# ── Colors ────────────────────────────────────────────────────────────────────
+if [ -t 1 ] && [ "${TERM:-}" != "dumb" ]; then
+  C_BOLD='\033[1m'
+  C_GREEN='\033[0;32m'
+  C_YELLOW='\033[0;33m'
+  C_CYAN='\033[0;36m'
+  C_RED='\033[0;31m'
+  C_DIM='\033[2m'
+  C_RESET='\033[0m'
+else
+  C_BOLD='' C_GREEN='' C_YELLOW='' C_CYAN='' C_RED='' C_DIM='' C_RESET=''
+fi
+
+_info()    { printf "${C_CYAN}%s${C_RESET}\n" "$*"; }
+_success() { printf "${C_GREEN}%s${C_RESET}\n" "$*"; }
+_warn()    { printf "${C_YELLOW}%s${C_RESET}\n" "$*" >&2; }
+_error()   { printf "${C_RED}Error: %s${C_RESET}\n" "$*" >&2; }
+_bold()    { printf "${C_BOLD}%s${C_RESET}\n" "$*"; }
+_dim()     { printf "${C_DIM}%s${C_RESET}\n" "$*"; }
+
+# ── Resolve agents source dir ─────────────────────────────────────────────────
+_agents_src_dir() {
+  if [ -n "${CAST_AGENTS_DIR:-}" ]; then
+    echo "$CAST_AGENTS_DIR"
+  else
+    echo "${CA_REPO_DIR}/agents"
+  fi
+}
+
+# ── Subcommand: list ──────────────────────────────────────────────────────────
+_cmd_list() {
+  local src_dir
+  src_dir="$(_agents_src_dir)"
+
+  if [ ! -d "$src_dir" ]; then
+    _error "Agents directory not found: $src_dir"
+    exit 1
+  fi
+
+  printf "\n"
+  _bold "cast-agents v${CA_VERSION} — Agent Roster"
+  printf "${C_DIM}%s${C_RESET}\n" "══════════════════════════════════════════════════════════"
+  printf "${C_BOLD}  %-22s %-10s %-10s %s${C_RESET}\n" "name" "model" "effort" "type"
+  printf "${C_DIM}%s${C_RESET}\n" "  ──────────────────────────────────────────────────────"
+
+  for f in "${src_dir}"/*.md; do
+    [ -f "$f" ] || continue
+    local name model effort agent_type
+    name="$(grep -m1 '^name:' "$f" 2>/dev/null | sed 's/name:[[:space:]]*//' | tr -d '"' | tr -d "'")"
+    model="$(grep -m1 '^model:' "$f" 2>/dev/null | sed 's/model:[[:space:]]*//' | tr -d '"' | tr -d "'")"
+    effort="$(grep -m1 '^effort:' "$f" 2>/dev/null | sed 's/effort:[[:space:]]*//' | tr -d '"' | tr -d "'")"
+    name="${name:-$(basename "$f" .md)}"
+    model="${model:-unknown}"
+    effort="${effort:-unknown}"
+
+    case "${name}" in
+      orchestrator|planner)
+        agent_type="${C_YELLOW}[cast-framework]${C_RESET}"
+        ;;
+      morning-briefing)
+        agent_type="${C_CYAN}[cast-enhanced]${C_RESET}"
+        ;;
+      *)
+        agent_type="${C_GREEN}[general]${C_RESET}"
+        ;;
+    esac
+
+    printf "  %-22s %-10s %-10s %b\n" "$name" "$model" "$effort" "$agent_type"
+  done
+
+  printf "\n"
+  printf "${C_DIM}Types: [general] = works standalone  [cast-framework] = requires CAST orchestrator  [cast-enhanced] = richer with cast.db${C_RESET}\n"
+  printf "\n"
+}
+
+# ── Subcommand: install ───────────────────────────────────────────────────────
+_cmd_install() {
+  local target_name="${1:-}"
+  local src_dir
+  src_dir="$(_agents_src_dir)"
+  local dst_dir="${HOME}/.claude/agents"
+
+  if [ ! -d "$src_dir" ]; then
+    _error "Agents source directory not found: $src_dir"
+    exit 1
+  fi
+
+  mkdir -p "$dst_dir"
+
+  if [ -n "$target_name" ]; then
+    # Install single agent
+    local src_file="${src_dir}/${target_name}.md"
+    if [ ! -f "$src_file" ]; then
+      _error "Agent not found: ${target_name}"
+      printf "  Run 'cast-agents list' to see available agents.\n" >&2
+      exit 1
+    fi
+    cp "$src_file" "${dst_dir}/${target_name}.md"
+    _success "  ${target_name}.md → ~/.claude/agents/"
+  else
+    # Install all agents
+    printf "\n"
+    _bold "Installing all agents → ~/.claude/agents/"
+    local copied=0
+    for f in "${src_dir}"/*.md; do
+      [ -f "$f" ] || continue
+      local base
+      base="$(basename "$f")"
+      cp "$f" "${dst_dir}/${base}"
+      _success "  ${base}"
+      copied=$((copied + 1))
+    done
+    printf "\n"
+    _success "${copied} agent(s) installed to ~/.claude/agents/"
+    printf "\n"
+    printf "  Start Claude Code and dispatch any agent:\n"
+    printf "    \"Use the code-reviewer agent to review my changes\"\n"
+    printf "\n"
+  fi
+}
+
+# ── Subcommand: info ──────────────────────────────────────────────────────────
+_cmd_info() {
+  local name="${1:-}"
+  if [ -z "$name" ]; then
+    _error "Usage: cast-agents info <agent-name>"
+    exit 1
+  fi
+
+  local src_dir
+  src_dir="$(_agents_src_dir)"
+  local agent_file="${src_dir}/${name}.md"
+
+  if [ ! -f "$agent_file" ]; then
+    _error "Agent not found: ${name}"
+    printf "  Run 'cast-agents list' to see available agents.\n" >&2
+    exit 1
+  fi
+
+  printf "\n"
+  _bold "Agent: ${name}"
+  printf "${C_DIM}%s${C_RESET}\n" "════════════════════════════════════"
+
+  # Print frontmatter block
+  local in_frontmatter=0
+  while IFS= read -r line; do
+    if [ "$line" = "---" ]; then
+      if [ $in_frontmatter -eq 0 ]; then
+        in_frontmatter=1
+        continue
+      else
+        break
+      fi
+    fi
+    [ $in_frontmatter -eq 1 ] && printf "  %s\n" "$line"
+  done < "$agent_file"
+
+  printf "\n"
+}
+
+# ── Usage ─────────────────────────────────────────────────────────────────────
+_usage() {
+  cat <<USAGE
+${C_BOLD}cast-agents v${CA_VERSION}${C_RESET} — 17 specialist Claude Code agent definitions
+
+Usage: cast-agents <subcommand> [args]
+
+Subcommands:
+  ${C_BOLD}list${C_RESET}                       Show all agents with model, effort, and type
+  ${C_BOLD}install${C_RESET}  [name]             Install all agents (or one by name) to ~/.claude/agents/
+  ${C_BOLD}info${C_RESET}     <name>             Show frontmatter for a specific agent
+
+Global flags:
+  --version, -v    Print version
+  --help, -h       Show this help
+USAGE
+}
+
+# ── Main dispatch ─────────────────────────────────────────────────────────────
+case "${1:-}" in
+  list)
+    _cmd_list
+    ;;
+  install)
+    shift
+    _cmd_install "${1:-}"
+    ;;
+  info)
+    shift
+    _cmd_info "${1:-}"
+    ;;
+  --version|-v)
+    echo "cast-agents v${CA_VERSION}"
+    ;;
+  --help|-h|help|"")
+    _usage
+    ;;
+  *)
+    _error "Unknown subcommand: ${1}"
+    printf "Run 'cast-agents --help' for usage.\n" >&2
+    exit 1
+    ;;
+esac
