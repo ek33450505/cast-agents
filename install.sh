@@ -38,11 +38,21 @@ _ok "No required dependencies (agents are pure markdown)"
 # ── Step 2: Create agent directory ────────────────────────────────────────────
 _step "Creating directories..."
 AGENTS_DST="${HOME}/.claude/agents"
+BACKUP_DIR="${HOME}/.claude/backups/cast-agents-$(date +%Y%m%d-%H%M%S)"
 if mkdir -p "$AGENTS_DST" 2>/dev/null; then
   _ok "~/.claude/agents/"
 else
   _fail "Could not create ~/.claude/agents/ — check permissions"
   exit 1
+fi
+
+# ── Step 2b: Backup existing agents ──────────────────────────────────────────
+if ls "${AGENTS_DST}"/*.md 2>/dev/null | head -1 | grep -q .; then
+  if mkdir -p "$BACKUP_DIR" 2>/dev/null && cp "${AGENTS_DST}"/*.md "$BACKUP_DIR/" 2>/dev/null; then
+    _ok "Backed up existing agents to ${BACKUP_DIR}"
+  else
+    _warn "Could not create backup — continuing without backup"
+  fi
 fi
 
 # ── Step 3: Copy agent files ──────────────────────────────────────────────────

@@ -2,6 +2,18 @@
 
 All notable changes to cast-agents are documented here.
 
+## [0.2.0] — 2026-04-03
+
+### Changed
+
+- Synced `code-reviewer.md` with upstream CAST v4.2 — added `background: true` flag
+- Synced `morning-briefing.md` with upstream CAST v4.2 — fixed cast.db path (`~/.claude/cast.db`), updated AppleScript error handling, added `initialPrompt` field, updated description
+- Synced `push.md` with upstream CAST v4.2 — added sandbox note for BATS test gate
+
+### Added
+
+- `install.sh` now backs up existing `~/.claude/agents/*.md` files to `~/.claude/backups/cast-agents-<timestamp>/` before overwriting
+
 ## [0.1.0] — 2026-04-02
 
 ### Added
