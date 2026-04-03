@@ -67,5 +67,5 @@ teardown() {
   bash "$REPO_DIR/install.sh" >/dev/null 2>&1
   run cast-agents --version
   [ $status -eq 0 ]
-  [[ "$output" == *"0.1.0"* ]]
+  [[ "$output" == *"0.2.0"* ]]
 }
