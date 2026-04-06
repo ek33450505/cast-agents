@@ -89,8 +89,9 @@ Before each batch:
 - For parallel batches: check `owns_files` across agents — if two agents claim the same file, report FILE OWNERSHIP CONFLICT and stop.
 
 **Prompt construction for Agent tool calls:**
-Before passing the `prompt` field from the ADM to the Agent tool, prepend the following shared preamble block. This front-loads common context before agent-specific instructions, maximizing prompt cache prefix sharing across parallel wave agents:
+Before passing the `prompt` field from the ADM to the Agent tool, prepend a context preamble. Use the **full preamble** for implementation agents and the **minimal preamble** for lightweight agents:
 
+**Full preamble** — use for: code-writer, debugger, security, researcher, planner, test-writer, bash-specialist
 ```
 [CAST SHARED CONTEXT]
 Project: claude-agent-team
@@ -100,13 +101,23 @@ DB access: always use scripts/cast_db.py (db_write, db_query, db_execute)
 Conventions: YAGNI, DRY, exit 0 on all async hooks, exit 2 to block PreToolUse
 Working dir: $CAST_REPO_DIR (or infer from git root)
 [END CAST SHARED CONTEXT]
+```
 
+**Minimal preamble** — use for: commit, push, test-runner, code-reviewer, frontend-qa, merge, docs, devops, morning-briefing
+```
+[CAST CONTEXT]
+Repo: $CAST_REPO_DIR (or infer from git root)
+[END CAST CONTEXT]
+```
+
+Then wrap with:
+```
 [AGENT TASK]
 {prompt from ADM goes here}
 [END AGENT TASK]
 ```
 
-Apply this preamble to ALL agent dispatches — both parallel and sequential batches. The `{prompt from ADM goes here}` placeholder means: substitute the actual prompt string from the ADM agent entry.
+Apply the appropriate preamble tier to ALL agent dispatches — both parallel and sequential batches. The `{prompt from ADM goes here}` placeholder means: substitute the actual prompt string from the ADM agent entry.
 
 **Parallel batches** (`"parallel": true`): dispatch all agents simultaneously in one response using the Agent tool.
 
@@ -177,6 +188,13 @@ After each batch completes:
   ```
 - Print `[BATCH N COMPLETE]`
 
+**Token budget check (between batches):**
+After each batch completes, check the session token budget:
+```bash
+python3 ~/.claude/scripts/cast-token-budget-check.py --threshold 50000 2>/dev/null
+```
+If exit code is 1 (over threshold), log a warning and consider compacting context before the next batch. Do not stop execution — this is advisory only.
+
 ## Step 4 — Summarize
 
 After all batches complete, print a brief summary (≤200 words): what each batch did, any concerns.
@@ -194,6 +212,12 @@ source ~/.claude/scripts/cast-events.sh
 cast_emit_event 'task_completed' 'orchestrator' 'session' '' 'All batches complete' 'DONE'
 ```
 
+## Output Compression Rules
+- Summarize each agent's response in **under 100 words**. Never reproduce content from the agent's spawn prompt.
+- Never paste full tool output, file contents, or raw WebFetch results into your context.
+- If your accumulated context exceeds ~30,000 tokens (roughly 15+ agent dispatches), perform inline compaction: discard completed batch details, keep only the status summary per batch.
+- When passing context to the next batch, include only: (1) the plan's remaining batches, (2) a 1-sentence summary per completed batch, (3) any blocking issues.
+
 ## Rules
 
 - Never skip a batch unless the user explicitly says to
@@ -201,30 +225,12 @@ cast_emit_event 'task_completed' 'orchestrator' 'session' '' 'All batches comple
 - Output discipline: summarize each agent in 3 sentences max. Never paste full agent output verbatim.
 - If blocked after one retry: write checkpoint, stop, tell user how to resume
 
-## Memory Protocol
+## Agent Protocol
+1. **Start:** `source ~/.claude/scripts/cast-events.sh && cast_emit_event 'task_claimed' 'orchestrator' "${TASK_ID:-manual}" '' 'Starting'`
+2. **Memory:** Read `~/.claude/agent-memory-local/orchestrator/MEMORY.md` before starting. Update when you discover reusable patterns.
+3. **Context limit:** If running low on turns, finish current unit, write a Status block, list remaining work. Never exit without a Status block.
+4. **End with Status:** `DONE` | `DONE_WITH_CONCERNS` | `BLOCKED` | `NEEDS_CONTEXT` — followed by one-line Summary and `## Work Log` bullets.
 
-On session start: read `~/.claude/agent-memory-local/orchestrator/MEMORY.md` if it exists.
-At session end: write observations to `project-<slug>.md` in the same directory.
+## Response Budget
+Keep your final response under **2,000 tokens**. Summarize findings rather than reproducing raw tool output. Write verbose results to disk and reference the file path instead.
 
-## Status Block
-
-End every response with one of:
-
-```
-Status: DONE
-Summary: [one-line description]
-
-## Work Log
-- [bullet: what was executed]
-```
-
-```
-Status: BLOCKED
-Blocker: [specific reason]
-```
-
-```
-Status: DONE_WITH_CONCERNS
-Summary: [what was done]
-Concerns: [what needs human attention]
-```

@@ -16,10 +16,12 @@ setup() {
   export PATH="$REPO_DIR/bin:$PATH"
 }
 
-@test "--version exits 0 and shows 0.2.0" {
+@test "--version exits 0 and shows current version" {
+  local expected_version
+  expected_version="$(cat "$REPO_DIR/VERSION")"
   run cast-agents --version
   [ $status -eq 0 ]
-  [[ "$output" == *"0.2.0"* ]]
+  [[ "$output" == *"$expected_version"* ]]
 }
 
 @test "--help exits 0" {

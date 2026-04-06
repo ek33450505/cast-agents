@@ -65,7 +65,9 @@ teardown() {
 
 @test "cast-agents --version works after install" {
   bash "$REPO_DIR/install.sh" >/dev/null 2>&1
+  local expected_version
+  expected_version="$(cat "$REPO_DIR/VERSION")"
   run cast-agents --version
   [ $status -eq 0 ]
-  [[ "$output" == *"0.2.0"* ]]
+  [[ "$output" == *"$expected_version"* ]]
 }

@@ -1,6 +1,6 @@
 # cast-agents
 
-![version](https://img.shields.io/badge/version-0.2.0-blue)
+![version](https://img.shields.io/badge/version-0.3.0-blue)
 ![license](https://img.shields.io/badge/license-MIT-green)
 ![platform](https://img.shields.io/badge/platform-macOS%20%7C%20Linux-lightgrey)
 ![agents](https://img.shields.io/badge/agents-17-purple)
@@ -43,20 +43,20 @@ Work standalone with any Claude Code setup — no CAST framework required.
 
 | Agent | Model | Effort | What it does |
 |---|---|---|---|
-| `bash-specialist` | sonnet | medium | Complex shell scripts, debugging Bash, BATS tests |
+| `bash-specialist` | haiku | low | Complex shell scripts, debugging Bash, BATS tests |
 | `code-reviewer` | haiku | low | Immediate post-change code review |
 | `code-writer` | sonnet | high | Feature implementation, refactors, bug fixes |
 | `commit` | haiku | low | Semantic git commit message generation |
 | `debugger` | sonnet | high | Error triage, root cause analysis, fixes |
-| `devops` | sonnet | medium | CI/CD, Docker, shell automation, deployments |
-| `docs` | sonnet | medium | Documentation, changelogs, README files |
+| `devops` | haiku | low | CI/CD, Docker, shell automation, deployments |
+| `docs` | haiku | low | Documentation, changelogs, README files |
 | `frontend-qa` | haiku | low | UI component review and accessibility checks |
-| `merge` | sonnet | medium | Git merges, rebases, conflict resolution |
+| `merge` | haiku | low | Git merges, rebases, conflict resolution |
 | `push` | haiku | low | Safe git push with pre-push validation |
 | `researcher` | sonnet | high | Deep investigation, multi-step analysis |
 | `security` | sonnet | medium | Security audits, vulnerability assessment |
 | `test-runner` | haiku | low | Run test suites, report failures |
-| `test-writer` | sonnet | high | Write tests for new features and edge cases |
+| `test-writer` | haiku | low | Write tests for new features and edge cases |
 
 ### CAST framework agents
 
@@ -73,7 +73,7 @@ Work standalone, but produce richer output when the CAST observability database 
 
 | Agent | Model | Effort | What it does |
 |---|---|---|---|
-| `morning-briefing` | sonnet | medium | Daily briefing: git activity, plans, session summary |
+| `morning-briefing` | haiku | low | Daily briefing: git activity, plans, session summary |
 
 ## The Status block contract
 
@@ -104,7 +104,7 @@ Concerns: coverage/auth.ts is at 61% — below the 80% threshold. Consider addin
 
 ## Model selection rationale
 
-Haiku agents handle high-frequency, low-complexity tasks — commit messages, code review passes, push validation, running tests. Sonnet agents handle reasoning-heavy work — writing code, debugging, planning, research. The 12x cost difference between models makes this worth understanding before you dispatch everything to sonnet.
+Haiku agents handle high-frequency, low-complexity tasks — commit messages, code review, push validation, running tests, doc writing, merge operations, shell scripting, devops, morning briefings, and test writing. Sonnet agents handle reasoning-heavy work — writing code, debugging, planning, research, security review, and orchestration. The 11 haiku / 6 sonnet split and the 12x cost difference between models makes this worth understanding before you dispatch everything to sonnet.
 
 Rule of thumb: if the task requires reading and deciding (not reading and writing), start with haiku.
 
