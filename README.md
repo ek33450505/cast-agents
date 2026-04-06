@@ -1,5 +1,6 @@
 # cast-agents
 
+[![CI](https://github.com/ek33450505/cast-agents/actions/workflows/ci.yml/badge.svg)](https://github.com/ek33450505/cast-agents/actions/workflows/ci.yml)
 ![version](https://img.shields.io/badge/version-0.3.0-blue)
 ![license](https://img.shields.io/badge/license-MIT-green)
 ![platform](https://img.shields.io/badge/platform-macOS%20%7C%20Linux-lightgrey)
@@ -132,6 +133,20 @@ Rule of thumb: if the task requires reading and deciding (not reading and writin
 These agents are extracted from [CAST](https://github.com/ek33450505/claude-agent-team) — a full multi-agent framework built on Claude Code with orchestration, hooks, observability (cast.db), and automated plan execution. If you want the complete framework — including the `orchestrator` and `planner` agents working at full capacity, plus CI hooks and a dashboard — install CAST.
 
 cast-agents is for teams and individuals who want the specialized agents without the full framework.
+
+## CAST Ecosystem
+
+Each CAST component ships as a standalone Homebrew package. Mix and match to build your own stack.
+
+| Package | What It Does | Install |
+|---------|-------------|---------|
+| **cast-agents** | 17 specialist Claude Code agents | `brew tap ek33450505/cast-agents && brew install cast-agents` |
+| [cast-hooks](https://github.com/ek33450505/cast-hooks) | 13 hook scripts — observability, safety gates, dispatch | `brew tap ek33450505/cast-hooks && brew install cast-hooks` |
+| [cast-observe](https://github.com/ek33450505/cast-observe) | Session cost + token spend tracking | `brew tap ek33450505/cast-observe && brew install cast-observe` |
+| [cast-security](https://github.com/ek33450505/cast-security) | Policy gates, PII redaction, audit trail | `brew tap ek33450505/cast-security && brew install cast-security` |
+| [cast-dash](https://github.com/ek33450505/cast-dash) | Terminal UI dashboard (Python + Textual) | `brew tap ek33450505/cast-dash && brew install cast-dash` |
+| [cast-memory](https://github.com/ek33450505/cast-memory) | Persistent memory for Claude Code agents | `brew tap ek33450505/cast-memory && brew install cast-memory` |
+| [cast-parallel](https://github.com/ek33450505/cast-parallel) | Parallel plan execution across dual worktrees | `brew tap ek33450505/cast-parallel && brew install cast-parallel` |
 
 ## License
 
