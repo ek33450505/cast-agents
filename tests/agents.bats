@@ -17,9 +17,9 @@ _get_model() {
 
 # ── File presence ──────────────────────────────────────────────────────────────
 
-@test "all 15 agent files are present" {
+@test "all 22 agent files are present" {
   count="$(ls "$AGENTS_DIR/"*.md 2>/dev/null | wc -l | tr -d ' ')"
-  [ "$count" -eq 15 ]
+  [ "$count" -eq 22 ]
 }
 
 @test "commit.md exists" {
@@ -45,6 +45,34 @@ _get_model() {
 
 @test "morning-briefing.md exists" {
   [ -f "$AGENTS_DIR/morning-briefing.md" ]
+}
+
+@test "api-contract.md exists" {
+  [ -f "$AGENTS_DIR/api-contract.md" ]
+}
+
+@test "dep-auditor.md exists" {
+  [ -f "$AGENTS_DIR/dep-auditor.md" ]
+}
+
+@test "eval-writer.md exists" {
+  [ -f "$AGENTS_DIR/eval-writer.md" ]
+}
+
+@test "migration-reviewer.md exists" {
+  [ -f "$AGENTS_DIR/migration-reviewer.md" ]
+}
+
+@test "perf-sentinel.md exists" {
+  [ -f "$AGENTS_DIR/perf-sentinel.md" ]
+}
+
+@test "pr-reviewer.md exists" {
+  [ -f "$AGENTS_DIR/pr-reviewer.md" ]
+}
+
+@test "release-notes.md exists" {
+  [ -f "$AGENTS_DIR/release-notes.md" ]
 }
 
 # ── Frontmatter: commit.md ─────────────────────────────────────────────────────
@@ -126,9 +154,9 @@ _get_model() {
 
 # ── Model values are valid ─────────────────────────────────────────────────────
 
-@test "all agents use haiku or sonnet model" {
+@test "all agents use haiku, sonnet, or opus model" {
   for f in "$AGENTS_DIR"/*.md; do
     model="$(_get_model "$f")"
-    [ "$model" = "haiku" ] || [ "$model" = "sonnet" ]
+    [ "$model" = "haiku" ] || [ "$model" = "sonnet" ] || [ "$model" = "opus" ]
   done
 }
