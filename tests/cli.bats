@@ -68,7 +68,6 @@ setup() {
   run cast-agents install
   [ $status -eq 0 ]
   [ -f "$HOME/.claude/agents/code-reviewer.md" ]
-  [ -f "$HOME/.claude/agents/orchestrator.md" ]
 }
 
 @test "info nonexistent-agent exits non-zero" {

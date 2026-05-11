@@ -2,6 +2,30 @@
 
 All notable changes to cast-agents are documented here.
 
+## [0.4.0] — 2026-05-11 — CAST v7 Sync
+
+**Synced with claude-agent-team v7 (Backend Lockdown).** Agent count: 17 → 22.
+
+### Added
+- 7 new agents from CAST v7: `api-contract`, `dep-auditor`, `eval-writer`, `migration-reviewer` (opus model), `perf-sentinel`, `pr-reviewer`, `release-notes`
+- Stub `cast-conventions` skill so v7 agents' `skills: [cast-conventions]` frontmatter resolves cleanly for standalone users (real skill ships with CAST framework)
+- `install.sh` step that copies the `skills/` directory tree to `~/.claude/skills/`
+- 7 new BATS existence tests in `tests/agents.bats`; model validation loop extended to allow `opus`
+
+### Changed
+- 15 existing agents synced to CAST v7 spec: front-loaded `Status emission (MANDATORY)` blocks, output caps (`| tail -100`, `git --no-pager`), mandatory `## Handoff` blocks, `## Operational hard rules` git-surgery prohibitions, the de-lied `test-runner` description (Phase 4.11 — agent no longer claims debugger dispatch it can't perform)
+- 10 of the synced agents now write to `~/.claude/agent-status/<agent>-<ts>.json` BEFORE prose summaries via `cast_write_status` (truncation resilience, Phase 4.9)
+
+### Removed
+- `agents/merge.md` — `/merge` became a skill in CAST v4.5a
+- `agents/orchestrator.md` — removed in CAST v6.0 (subagents cannot dispatch further agents — structural limitation)
+
+### Tests
+- `tests/agents.bats`: count assertion 17 → 15 → 22 across batches; 31/31 pass
+
+### Notes
+- This release is the first cast-agents sync since CAST v4.4 (early April 2026). cast-agents now ships agents that are spec-compatible with CAST v7 — both as a standalone tap and as the agent layer of a CAST install.
+
 ## [0.3.0] — 2026-04-06
 
 ### Changed

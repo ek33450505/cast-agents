@@ -48,10 +48,6 @@ teardown() {
   [ -f "$HOME/.claude/agents/code-reviewer.md" ]
 }
 
-@test "orchestrator.md is present after install" {
-  bash "$REPO_DIR/install.sh" >/dev/null 2>&1
-  [ -f "$HOME/.claude/agents/orchestrator.md" ]
-}
 
 @test "morning-briefing.md is present after install" {
   bash "$REPO_DIR/install.sh" >/dev/null 2>&1
