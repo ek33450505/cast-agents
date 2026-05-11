@@ -32,10 +32,10 @@ teardown() {
   [ -d "$HOME/.claude/agents" ]
 }
 
-@test "all 17 agent .md files are installed" {
+@test "all 22 agent .md files are installed" {
   bash "$REPO_DIR/install.sh" >/dev/null 2>&1
   count="$(ls "$HOME/.claude/agents/"*.md 2>/dev/null | wc -l | tr -d ' ')"
-  [ "$count" -eq 17 ]
+  [ "$count" -eq 22 ]
 }
 
 @test "commit.md is present after install" {
