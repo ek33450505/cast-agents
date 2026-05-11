@@ -17,9 +17,9 @@ _get_model() {
 
 # ── File presence ──────────────────────────────────────────────────────────────
 
-@test "all 17 agent files are present" {
+@test "all 15 agent files are present" {
   count="$(ls "$AGENTS_DIR/"*.md 2>/dev/null | wc -l | tr -d ' ')"
-  [ "$count" -eq 17 ]
+  [ "$count" -eq 15 ]
 }
 
 @test "commit.md exists" {
@@ -34,9 +34,6 @@ _get_model() {
   [ -f "$AGENTS_DIR/code-writer.md" ]
 }
 
-@test "orchestrator.md exists" {
-  [ -f "$AGENTS_DIR/orchestrator.md" ]
-}
 
 @test "planner.md exists" {
   [ -f "$AGENTS_DIR/planner.md" ]
@@ -107,24 +104,6 @@ _get_model() {
   [ "$model" = "haiku" ]
 }
 
-# ── Frontmatter: orchestrator.md ──────────────────────────────────────────────
-
-@test "orchestrator.md has name field" {
-  _has_field "$AGENTS_DIR/orchestrator.md" "name"
-}
-
-@test "orchestrator.md has model field" {
-  _has_field "$AGENTS_DIR/orchestrator.md" "model"
-}
-
-@test "orchestrator.md has description field" {
-  _has_field "$AGENTS_DIR/orchestrator.md" "description"
-}
-
-@test "orchestrator.md uses sonnet model" {
-  model="$(_get_model "$AGENTS_DIR/orchestrator.md")"
-  [ "$model" = "sonnet" ]
-}
 
 # ── Frontmatter: debugger.md ───────────────────────────────────────────────────
 
