@@ -81,6 +81,31 @@ if [ "$errors" -gt 0 ]; then
   _warn "${errors} agent(s) failed to copy — check permissions on ~/.claude/agents/"
 fi
 
+# ── Step 3b: Copy skill stubs ─────────────────────────────────────────────────
+_step "Installing skill stubs..."
+SKILLS_SRC="${REPO_DIR}/skills"
+SKILLS_DST="${HOME}/.claude/skills"
+skills_copied=0
+
+if [ -d "$SKILLS_SRC" ]; then
+  for skill_dir in "${SKILLS_SRC}"/*/; do
+    [ -d "$skill_dir" ] || continue
+    skill_name="$(basename "$skill_dir")"
+    dest_dir="${SKILLS_DST}/${skill_name}"
+    if mkdir -p "$dest_dir" 2>/dev/null && cp -r "${skill_dir}"* "$dest_dir/" 2>/dev/null; then
+      _ok "${skill_name}/"
+      skills_copied=$((skills_copied + 1))
+    else
+      _warn "Could not copy skill: ${skill_name}"
+    fi
+  done
+  if [ "$skills_copied" -eq 0 ]; then
+    _ok "No skill stubs found — skipping"
+  fi
+else
+  _ok "No skills/ directory — skipping"
+fi
+
 # ── Step 4: Optionally copy examples ─────────────────────────────────────────
 _step "Example scripts..."
 EXAMPLES_SRC="${REPO_DIR}/examples"
@@ -135,6 +160,7 @@ fi
 printf "\n${C_BOLD}══════════════════════════════════════${C_RESET}\n"
 printf "${C_GREEN}cast-agents v${CA_VERSION} installed.${C_RESET}\n\n"
 printf "  Agents:  ${HOME}/.claude/agents/ (${copied} files)\n"
+printf "  Skills:  ${HOME}/.claude/skills/ (${skills_copied} stub(s))\n"
 printf "  CLI:     ${CLI_DST}\n"
 printf "\n${C_BOLD}Next steps:${C_RESET}\n"
 printf "  1. Start Claude Code\n"
