@@ -28,8 +28,8 @@ jobs:
             echo "Update the badge in README.md: ![version](https://img.shields.io/badge/version-${VERSION}-blue)"
             exit 1
           fi
-      - name: Verify all 22 agent files present
+      - name: Verify all 23 agent files present
         run: |
           count="$(ls agents/*.md 2>/dev/null | wc -l | tr -d ' ')"
           echo "Agent files found: ${count}"
-          [ "$count" -eq 22 ]
+          [ "$count" -eq 23 ]
