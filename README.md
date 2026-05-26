@@ -1,7 +1,7 @@
 # cast-agents
 
 [![CI](https://github.com/ek33450505/cast-agents/actions/workflows/ci.yml/badge.svg)](https://github.com/ek33450505/cast-agents/actions/workflows/ci.yml)
-![version](https://img.shields.io/badge/version-0.4.0-blue)
+![version](https://img.shields.io/badge/version-0.5.0-blue)
 ![license](https://img.shields.io/badge/license-MIT-green)
 ![platform](https://img.shields.io/badge/platform-macOS%20%7C%20Linux-lightgrey)
 ![agents](https://img.shields.io/badge/agents-23-purple)
