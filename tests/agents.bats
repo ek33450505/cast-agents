@@ -17,9 +17,9 @@ _get_model() {
 
 # ── File presence ──────────────────────────────────────────────────────────────
 
-@test "all 22 agent files are present" {
+@test "all 23 agent files are present" {
   count="$(ls "$AGENTS_DIR/"*.md 2>/dev/null | wc -l | tr -d ' ')"
-  [ "$count" -eq 22 ]
+  [ "$count" -eq 23 ]
 }
 
 @test "commit.md exists" {
