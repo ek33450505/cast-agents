@@ -2,6 +2,20 @@
 
 All notable changes to cast-agents are documented here.
 
+## [0.5.0] — 2026-05-25 — Canonical Sync
+
+Surfaced by the 2026-05-25 CAST ecosystem audit. Brings cast-agents back in line with `claude-agent-team` after several months of one-way drift.
+
+### Added
+- `agents/merge.md` — re-introduced from canonical (CAST registry lists `merge` as a haiku 4.5 agent; v0.4.0 removed it as the skill-equivalent shipped, but the standalone agent definition is still canonical).
+
+### Changed
+- 6 agents synced to canonical: `commit.md` (Scope Discipline section), `morning-briefing.md` (placeholder email in User-Agent header), `planner.md` (placeholder path in example), `push.md` (ABSOLUTE PROHIBITION git stash section), `researcher.md` (Pre-flight scope check hard rule), `test-runner.md` (pre-existing failure rule).
+- Tests + docs-check workflow updated: `22` → `23` agent assertions across `tests/agents.bats`, `tests/install.bats`, and `.github/workflows/docs-check.yml`.
+
+### Fixed
+- PR-review workflow: added `id-token: write` permission so `anthropics/claude-code-action` can request an OIDC token.
+
 ## [0.4.0] — 2026-05-11 — CAST v7 Sync
 
 **Synced with claude-agent-team v7 (Backend Lockdown).** Agent count: 17 → 22.
